@@ -195,14 +195,21 @@ const App = (() => {
         ${m.example ? `<div class="meaning-example-line">${m.example}</div>` : ''}
       </div>`).join('');
 
-    // Load saved sentences for this word
+    // Load saved sentences for this word (now stored as {en, zh} objects)
     const sentenceKey = `va_sentences_${w.id}`;
     const savedSentences = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
-    const savedHtml = savedSentences.map((s, i) => `
-      <div class="card-sentence-item">
-        <span class="card-sentence-item-text">${s}</span>
+    const renderSentenceItem = (s, i) => {
+      const en = typeof s === 'string' ? s : s.en;
+      const zh = typeof s === 'string' ? '' : (s.zh || '');
+      return `<div class="card-sentence-item">
+        <div class="card-sentence-item-body">
+          <div class="card-sentence-en">${en}</div>
+          ${zh ? `<div class="card-sentence-zh">${zh}</div>` : ''}
+        </div>
         <button class="card-sentence-delete" data-idx="${i}" title="刪除">✕</button>
-      </div>`).join('');
+      </div>`;
+    };
+    const savedHtml = savedSentences.map(renderSentenceItem).join('');
 
     wrap.innerHTML = `
       <div class="flashcard" id="flashcard">
@@ -227,11 +234,13 @@ const App = (() => {
 
             <!-- 造句區 -->
             <div class="card-sentence-section">
-              <div class="card-sentence-label">✍️ 造句練習（點此輸入你的例句）</div>
-              ${savedHtml ? `<div class="card-sentence-saved" id="sentences-list-${w.id}">${savedHtml}</div>` : `<div class="card-sentence-saved" id="sentences-list-${w.id}"></div>`}
-              <div class="card-sentence-input-row">
+              <div class="card-sentence-label">✍️ 造句練習</div>
+              <div class="card-sentence-saved" id="sentences-list-${w.id}">${savedHtml}</div>
+              <div class="card-sentence-inputs">
                 <textarea class="card-sentence-input" id="sentence-input-${w.id}"
-                  placeholder="用 ${w.word} 造一個句子..." rows="2"></textarea>
+                  placeholder="English sentence with ${w.word}..." rows="2"></textarea>
+                <textarea class="card-sentence-input card-sentence-input-zh" id="sentence-zh-${w.id}"
+                  placeholder="中文翻譯（選填）..." rows="2"></textarea>
                 <button class="card-sentence-submit" id="sentence-submit-${w.id}">儲存</button>
               </div>
             </div>
@@ -239,42 +248,43 @@ const App = (() => {
         </div>
       </div>`;
 
-    // Sentence save/delete handlers (set after innerHTML)
+    // Sentence save/delete handlers
     setTimeout(() => {
       const input  = document.getElementById(`sentence-input-${w.id}`);
+      const inputZh= document.getElementById(`sentence-zh-${w.id}`);
       const submit = document.getElementById(`sentence-submit-${w.id}`);
       const list   = document.getElementById(`sentences-list-${w.id}`);
 
+      const reRenderList = (sents) => {
+        if (!list) return;
+        list.innerHTML = sents.map(renderSentenceItem).join('');
+        list.querySelectorAll('.card-sentence-delete').forEach(btn => {
+          btn.addEventListener('click', ev => {
+            ev.stopPropagation();
+            const idx = +btn.dataset.idx;
+            const arr = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
+            arr.splice(idx, 1);
+            localStorage.setItem(sentenceKey, JSON.stringify(arr));
+            btn.closest('.card-sentence-item').remove();
+          });
+        });
+      };
+
       submit?.addEventListener('click', e => {
         e.stopPropagation();
-        const text = input?.value.trim();
-        if (!text) return;
+        const en = input?.value.trim();
+        const zh = inputZh?.value.trim() || '';
+        if (!en) return;
         const sents = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
-        sents.unshift(text);
+        sents.unshift({ en, zh });
         localStorage.setItem(sentenceKey, JSON.stringify(sents));
-        input.value = '';
-        // Re-render saved list
-        if (list) {
-          list.innerHTML = sents.map((s, i) => `
-            <div class="card-sentence-item">
-              <span class="card-sentence-item-text">${s}</span>
-              <button class="card-sentence-delete" data-idx="${i}" title="刪除">✕</button>
-            </div>`).join('');
-          list.querySelectorAll('.card-sentence-delete').forEach(btn => {
-            btn.addEventListener('click', ev => {
-              ev.stopPropagation();
-              const idx = +btn.dataset.idx;
-              const arr = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
-              arr.splice(idx, 1);
-              localStorage.setItem(sentenceKey, JSON.stringify(arr));
-              btn.closest('.card-sentence-item').remove();
-            });
-          });
-        }
+        if (input)   input.value = '';
+        if (inputZh) inputZh.value = '';
+        reRenderList(sents);
         toast('造句已儲存！', '✍️');
       });
 
-      // Delete existing sentences
+      // Delete existing sentences on load
       list?.querySelectorAll('.card-sentence-delete').forEach(btn => {
         btn.addEventListener('click', ev => {
           ev.stopPropagation();
@@ -286,9 +296,11 @@ const App = (() => {
         });
       });
 
-      // Prevent textarea click from triggering card flip
-      input?.addEventListener('click', e => e.stopPropagation());
-      input?.addEventListener('touchend', e => e.stopPropagation());
+      // Prevent input clicks from triggering card flip
+      [input, inputZh].forEach(el => {
+        el?.addEventListener('click',    e => e.stopPropagation());
+        el?.addEventListener('touchend', e => e.stopPropagation());
+      });
     }, 50);
 
 
