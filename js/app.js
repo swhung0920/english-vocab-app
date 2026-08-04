@@ -208,13 +208,12 @@ const App = (() => {
       <div class="flashcard" id="flashcard">
         <div class="flashcard-face flashcard-front">
           <span class="badge badge-${w.level.toLowerCase()}">${w.level}</span>
-          <div class="card-word" style="margin-top:12px">${w.word}</div>
+          <div class="card-word" style="margin-top:14px">${w.word}</div>
           <div class="card-phonetic">${w.phonetic}</div>
           <div class="card-pos-badge"><span class="badge badge-a2">${w.pos}</span></div>
-          <div style="margin-top:20px;font-size:13px;color:var(--text2);text-align:center;line-height:1.6">
-            ${w.zh}
-          </div>
-          <div class="card-tap-hint" style="margin-top:20px">👆 點擊翻卡看詳細解釋</div>
+          <div style="width:48px;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;margin:14px 0 10px"></div>
+          <div class="card-front-zh">${w.zh}</div>
+          <div class="card-tap-hint" style="margin-top:18px">👆 點擊翻卡看詳細解釋與例句</div>
         </div>
         <div class="flashcard-face flashcard-back" style="justify-content:flex-start;padding:14px 14px 14px;overflow:hidden">
           <div class="card-back-scroll" id="card-back-scroll-${w.id}">
