@@ -1,0 +1,14 @@
+# Python scripts (optional, not needed for deployment)
+build_wordlist.py
+enrich_meanings.py
+patch_examples.py
+check_quality.py
+check_meanings.py
+build_log.txt
+enrich_log.txt
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db

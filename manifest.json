@@ -1,0 +1,16 @@
+{
+  "name": "英文單字學習",
+  "short_name": "VocabApp",
+  "description": "英文常用7000字學習平台 - 翻卡、測驗、文章閱讀、個人筆記",
+  "start_url": "/english-vocab-app/",
+  "scope": "/english-vocab-app/",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#6d28d9",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

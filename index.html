@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6d28d9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="VocabApp" />
+  <meta name="description" content="英文常用7000字學習 App — 翻卡、測驗、文章閱讀、個人筆記、成效追蹤" />
+  <title>英文單字學習 · VocabApp</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+<!-- ── Loading Screen ── -->
+<div id="loading-screen">
+  <div class="loader-logo">📚</div>
+  <div class="loader-title">VocabApp</div>
+  <div style="font-size:14px;color:#94a3b8;margin-top:8px">英文學習平台</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- ── SVG Gradient Defs ── -->
+<svg id="svg-defs">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed" />
+      <stop offset="100%" style="stop-color:#06b6d4" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ── Toast ── -->
+<div class="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL OVERLAY (Word Note / Add Article)
+     ══════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modal-word-info"></div>
+    <textarea class="modal-input" id="modal-note-input" placeholder="寫下你的心得、記憶技巧、造句..."></textarea>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary btn-full" id="modal-save-btn" onclick="App.saveModalNote()">儲存筆記</button>
+      <button class="btn btn-ghost" onclick="App.closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     APP SHELL
+     ══════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- ══ PAGE: HOME ══ -->
+  <div class="page" id="page-home">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 style="font-size:22px">英文學習 📚</h1>
+          <div class="sub" id="home-date"></div>
+        </div>
+        <button class="nav-btn" style="color:var(--text2)" onclick="App.navigate('settings')">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Hero: Streak + Ring -->
+    <div class="home-hero">
+      <div class="streak-card">
+        <span class="streak-fire">🔥</span>
+        <div class="streak-count" id="home-streak">0</div>
+        <div class="streak-label">連續天數</div>
+      </div>
+      <div class="card" style="flex:1;text-align:center">
+        <div class="ring-wrap">
+          <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+            <circle class="ring-bg" cx="55" cy="55" r="44" stroke-width="8"/>
+            <circle class="ring-fill" id="home-ring-fill" cx="55" cy="55" r="44" stroke-width="8"
+              stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-num" id="home-studied">0</div>
+            <div class="ring-label">/ <span id="home-goal">20</span> 字</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">今日進度</div>
+      </div>
+    </div>
+
+    <!-- Review Alert -->
+    <div class="review-alert" id="review-alert" style="display:none">
+      <div class="icon">🧠</div>
+      <div class="text">
+        <strong>有 <span id="review-count">0</span> 個單字待複習！</strong>
+        <span>SM2 提醒：點擊立即複習</span>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="section-title">總覽</div>
+    <div class="card-row px-20" style="margin-bottom:16px">
+      <div class="card card-half" style="text-align:center">
+        <div style="font-size:28px;font-weight:800" class="purple-num" id="home-mastered">0</div>
+        <div style="font-size:12px;color:var(--text2)">已掌握單字</div>
+      </div>
+      <div class="card card-half" style="text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--amber)">7000</div>
+        <div style="font-size:12px;color:var(--text2)">詞庫總字數</div>
+      </div>
+    </div>
+
+    <!-- Mode Cards -->
+    <div class="section-title">快速開始</div>
+    <div class="mode-grid">
+      <div class="mode-card" data-mode="flashcard">
+        <div class="mode-icon">📖</div>
+        <div class="mode-name">翻卡學習</div>
+        <div class="mode-desc">Flashcard</div>
+      </div>
+      <div class="mode-card" data-mode="quiz">
+        <div class="mode-icon">🧩</div>
+        <div class="mode-name">選擇題</div>
+        <div class="mode-desc">4 選 1 測驗</div>
+      </div>
+      <div class="mode-card" data-mode="spell">
+        <div class="mode-icon">✍️</div>
+        <div class="mode-name">拼寫練習</div>
+        <div class="mode-desc">看中文拼英文</div>
+      </div>
+      <div class="mode-card" data-mode="review">
+        <div class="mode-icon">🔁</div>
+        <div class="mode-name">SM2 複習</div>
+        <div class="mode-desc">智慧間隔重複</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: STUDY ══ -->
+  <div class="page" id="page-study">
+    <div class="study-header topbar">
+      <div class="topbar-row">
+        <div><h1>📚 單字學習</h1><div class="sub">選擇等級與模式開始學習</div></div>
+      </div>
+      <!-- Level Pills -->
+      <div class="level-pills" id="level-pills"></div>
+    </div>
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="flashcard">📖 翻卡</div>
+      <div class="mode-tab" data-mode="quiz">🧩 測驗</div>
+      <div class="mode-tab" data-mode="spell">✍️ 拼寫</div>
+      <div class="mode-tab" data-mode="review">🔁 複習</div>
+      <div class="mode-tab" data-mode="error">❌ 錯誤</div>
+    </div>
+
+    <!-- Study Progress Bar -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="study-progress-fill" style="width:0%"></div></div>
+      <div class="progress-text"><span id="study-progress-text">0 / 0</span><span id="study-progress-pct"></span></div>
+    </div>
+
+    <!-- Main Study Area (dynamic) -->
+    <div id="study-main-area">
+      <!-- Flashcard view -->
+      <div id="flashcard-section">
+        <div class="flashcard-wrap" id="flashcard-area"></div>
+        <!-- Rating Buttons (shown after flip) -->
+        <div class="card-actions" id="card-actions" style="display:none">
+          <button class="action-btn action-wrong" data-q="0">😞<span>不會</span></button>
+          <button class="action-btn action-hard"  data-q="1">😐<span>困難</span></button>
+          <button class="action-btn action-good"  data-q="2">🙂<span>還好</span></button>
+          <button class="action-btn action-easy"  data-q="3">😄<span>簡單</span></button>
+        </div>
+        <!-- Tools -->
+        <div class="word-tools" id="word-tools" style="display:none">
+          <button class="btn btn-ghost btn-full" id="btn-star">☆</button>
+          <button class="btn btn-ghost btn-full" id="btn-note">📓</button>
+          <button class="btn btn-ghost btn-full" id="btn-tts">🔊</button>
+        </div>
+      </div>
+      <!-- Quiz / Spell area (dynamic) -->
+      <div id="quiz-area" class="quiz-wrap" style="display:none"></div>
+      <div id="spell-area" class="spell-wrap" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: STATS ══ -->
+  <div class="page" id="page-stats">
+    <div class="topbar stats-header">
+      <div class="topbar-row">
+        <div><h1>📊 學習成效</h1><div class="sub">你的學習歷程與統計</div></div>
+      </div>
+    </div>
+
+    <!-- Key Numbers -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--amber)">🔥 <span id="stat-streak">0</span></div>
+        <div class="stat-label">連續學習天數</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num purple-num" id="stat-mastered">0</div>
+        <div class="stat-label">已掌握單字</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--cyan)" id="stat-total">0</div>
+        <div class="stat-label">累計作答次數</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--green)" id="stat-today">0</div>
+        <div class="stat-label">今日學習字數</div>
+      </div>
+    </div>
+
+    <!-- Daily chart (14 days) -->
+    <div class="section-title">近 14 天學習趨勢</div>
+    <div class="mini-chart-wrap card" style="margin:0 20px 16px">
+      <div class="mini-chart" id="mini-chart"></div>
+    </div>
+
+    <!-- CEFR Level Progress -->
+    <div class="section-title">CEFR 等級進度</div>
+    <div class="level-progress-list" id="level-progress-list"></div>
+
+    <!-- Heatmap -->
+    <div class="section-title">學習打卡記錄（近52週）</div>
+    <div class="heatmap-wrap card" style="margin:0 20px 16px">
+      <div class="heatmap-scroll">
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:10px;font-size:11px;color:var(--text3)">
+        <span>少</span>
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--bg3)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:rgba(124,58,237,0.3)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:rgba(124,58,237,0.6)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--purple)"></div>
+        <span>多</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: ARTICLES ══ -->
+  <div class="page" id="page-articles">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div><h1>📰 文章閱讀</h1><div class="sub">點擊單字即時查詢</div></div>
+      </div>
+    </div>
+    <div class="articles-list" id="articles-list"></div>
+    <button class="fab" onclick="App.showAddArticle()">＋</button>
+  </div>
+
+  <!-- ══ PAGE: NOTES ══ -->
+  <div class="page" id="page-notes">
+    <div class="topbar notes-header">
+      <div class="topbar-row"><div><h1>📝 筆記</h1><div class="sub">單字心得 & 自由筆記</div></div></div>
+    </div>
+    <div class="notes-tabs">
+      <div class="notes-tab active" id="notes-word-tab" onclick="App.switchNoteTab('word')">📘 單字筆記</div>
+      <div class="notes-tab" id="notes-free-tab" onclick="App.switchNoteTab('free')">✍️ 自由筆記</div>
+    </div>
+    <div class="notes-list" id="notes-list"></div>
+    <button class="fab" id="notes-fab" style="display:none" onclick="App.newFreeNote()">＋</button>
+  </div>
+
+  <!-- ══ PAGE: SETTINGS ══ -->
+  <div class="page" id="page-settings">
+    <div class="topbar">
+      <div class="topbar-row">
+        <button class="back-btn" onclick="App.navigate('home')">←</button>
+        <h1 style="font-size:18px">⚙️ 設定</h1>
+        <div style="width:36px"></div>
+      </div>
+    </div>
+    <div class="settings-wrap">
+      <!-- Daily Goal -->
+      <div class="settings-section">
+        <div class="settings-section-title">學習目標</div>
+        <div class="settings-item">
+          <span class="settings-item-label">每日目標（字）</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="goal-input" id="setting-goal" type="number" min="1" max="500" value="20" />
+            <button class="btn btn-ghost btn-sm" onclick="App.saveGoal()">儲存</button>
+          </div>
+        </div>
+      </div>
+      <!-- Level Selection -->
+      <div class="settings-section">
+        <div class="settings-section-title">學習等級</div>
+        <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+          <span class="settings-item-label" style="color:var(--text2);font-size:13px">選擇要學習的 CEFR 等級（可多選）</span>
+          <div class="level-pills" id="setting-levels"></div>
+        </div>
+      </div>
+      <!-- Word Library -->
+      <div class="settings-section">
+        <div class="settings-section-title">詞庫資訊</div>
+        <div class="settings-item">
+          <span class="settings-item-label">目前詞庫</span>
+          <span class="settings-item-value" id="word-count-display">載入中...</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-label" style="font-size:13px;color:var(--text2)">替換詞庫：直接替換 <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">data/words.json</code></span>
+        </div>
+      </div>
+      <!-- Danger Zone -->
+      <div class="settings-section">
+        <div class="settings-section-title">危險區域</div>
+        <div class="settings-item">
+          <span class="settings-item-label">重置學習進度</span>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)" onclick="App.resetProgress()">重置</button>
+        </div>
+      </div>
+      <!-- About -->
+      <div class="card" style="margin:0;text-align:center;padding:20px">
+        <div style="font-size:32px;margin-bottom:8px">📚</div>
+        <div style="font-weight:700">VocabApp</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px">英文常用7000字學習平台</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px">詞庫：NGSL + NAWL + COCA<br/>SM2 間隔重複算法</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-page="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">首頁</span>
+    </button>
+    <button class="nav-btn" data-page="study">
+      <span class="nav-icon">📚</span>
+      <span class="nav-label">學習</span>
+    </button>
+    <button class="nav-btn" data-page="articles">
+      <span class="nav-icon">📰</span>
+      <span class="nav-label">文章</span>
+    </button>
+    <button class="nav-btn" data-page="notes">
+      <span class="nav-icon">📝</span>
+      <span class="nav-label">筆記</span>
+    </button>
+    <button class="nav-btn" data-page="stats">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">統計</span>
+    </button>
+  </nav>
+
+</div><!-- #app -->
+
+<script src="./js/engine.js"></script>
+<script src="./js/app.js"></script>
+<script>
+  // Update date display
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('home-date');
+    if (el) {
+      const now = new Date();
+      el.textContent = now.toLocaleDateString('zh-TW', { year:'numeric', month:'long', day:'numeric', weekday:'short' });
+    }
+    // Patch rating buttons to call correct function
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.onclick = () => {
+        // rateWord is inside App closure; expose via global
+        const q = +btn.dataset.q;
+        window._rateWord && window._rateWord(q);
+      };
+    });
+    // Word count
+    setTimeout(() => {
+      const el2 = document.getElementById('word-count-display');
+      if (el2) el2.textContent = Engine.getWords().length + ' 個單字';
+    }, 1000);
+  });
+
+  // Global alias so HTML inline onclick works
+  function rateWord(q) { window._rateWord && window._rateWord(q); }
+</script>
+</body>
+</html>
