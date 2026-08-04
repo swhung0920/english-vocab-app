@@ -252,6 +252,28 @@ body {
 }
 .mode-tab.active { background: linear-gradient(135deg,var(--purple),var(--cyan)); color:#fff; border-color:transparent; }
 
+/* Card Navigation Arrows */
+.card-nav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px 10px;
+}
+.card-nav-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
+  color: var(--text); font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--transition);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.card-nav-btn:hover  { background: rgba(124,58,237,0.25); border-color: var(--purple-light); transform: scale(1.1); }
+.card-nav-btn:active { transform: scale(0.95); }
+.card-nav-btn:disabled { opacity: 0.25; cursor: default; transform: none; }
+.card-nav-counter {
+  font-size: 13px; color: var(--text2); font-variant-numeric: tabular-nums;
+  min-width: 60px; text-align: center;
+}
+
 /* Flashcard */
 .flashcard-wrap { padding: 0 20px; perspective: 1200px; }
 .flashcard {

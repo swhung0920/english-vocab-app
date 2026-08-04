@@ -167,6 +167,12 @@
     <div id="study-main-area">
       <!-- Flashcard view -->
       <div id="flashcard-section">
+        <!-- Arrow navigation row -->
+        <div class="card-nav-row">
+          <button class="card-nav-btn" id="btn-prev-card" title="上一張">&#8592;</button>
+          <span class="card-nav-counter" id="card-nav-counter">— / —</span>
+          <button class="card-nav-btn" id="btn-next-card" title="下一張（不評分）">&#8594;</button>
+        </div>
         <div class="flashcard-wrap" id="flashcard-area"></div>
         <!-- Rating Buttons (shown after flip) -->
         <div class="card-actions" id="card-actions" style="display:none">
@@ -182,6 +188,7 @@
           <button class="btn btn-ghost btn-full" id="btn-tts">🔊</button>
         </div>
       </div>
+
       <!-- Quiz / Spell area (dynamic) -->
       <div id="quiz-area" class="quiz-wrap" style="display:none"></div>
       <div id="spell-area" class="spell-wrap" style="display:none"></div>

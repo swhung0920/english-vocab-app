@@ -222,10 +222,32 @@ const App = (() => {
     $('#study-progress-fill').style.width = pct + '%';
     $('#study-progress-text').textContent = `${done} / ${total}`;
 
+    // Navigation counter & arrow states
+    const counter = $('#card-nav-counter');
+    const btnPrev = $('#btn-prev-card');
+    const btnNext = $('#btn-next-card');
+    if (counter) counter.textContent = `${done + 1} / ${total}`;
+    if (btnPrev) btnPrev.disabled = (done === 0);
+    if (btnNext) btnNext.disabled = (done >= total - 1);
+
     // Tool buttons
     $('#btn-star').textContent  = starred ? '⭐' : '☆';
     $('#btn-note').textContent  = hasNote  ? '📝' : '📓';
     $('#btn-note').title        = hasNote  ? '查看筆記' : '加入筆記';
+  }
+
+  function prevCard() {
+    if (state.studyIdx <= 0) return;
+    state.studyIdx--;
+    state.studyFlipped = false;
+    renderFlashcard();
+  }
+
+  function nextCard() {
+    if (state.studyIdx >= state.studyWords.length - 1) return;
+    state.studyIdx++;
+    state.studyFlipped = false;
+    renderFlashcard();
   }
 
   function flipCard() {
@@ -880,33 +902,50 @@ const App = (() => {
       }
     });
 
-    // Flashcard click / touch — handle both desktop click & iOS touch
+    // Arrow buttons
+    $('#btn-prev-card')?.addEventListener('click', prevCard);
+    $('#btn-next-card')?.addEventListener('click', nextCard);
+
+    // Flashcard tap (flip) + swipe (prev/next) — works on desktop & iOS
     const fcArea = document.getElementById('flashcard-area');
     if (fcArea) {
-      let _touchMoved = false;
+      let _tx = 0, _ty = 0, _swiped = false;
+      const SWIPE_MIN = 40;   // px threshold for swipe
 
-      fcArea.addEventListener('touchstart', () => {
-        _touchMoved = false;
+      fcArea.addEventListener('touchstart', e => {
+        _tx = e.touches[0].clientX;
+        _ty = e.touches[0].clientY;
+        _swiped = false;
       }, { passive: true });
 
-      fcArea.addEventListener('touchmove', () => {
-        _touchMoved = true;
+      fcArea.addEventListener('touchmove', e => {
+        const dx = e.touches[0].clientX - _tx;
+        const dy = e.touches[0].clientY - _ty;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) _swiped = true;
       }, { passive: true });
 
       fcArea.addEventListener('touchend', e => {
-        if (!_touchMoved && e.target.closest('#flashcard')) {
-          e.preventDefault();   // prevent ghost click
+        if (!e.target.closest('#flashcard')) return;
+        const dx = e.changedTouches[0].clientX - _tx;
+        if (_swiped && Math.abs(dx) >= SWIPE_MIN) {
+          // Swipe left → next card, swipe right → prev card
+          e.preventDefault();
+          if (dx < 0) nextCard(); else prevCard();
+        } else if (!_swiped) {
+          // Short tap → flip
+          e.preventDefault();
           flipCard();
         }
       });
 
-      // Desktop fallback
+      // Desktop click → flip
       fcArea.addEventListener('click', e => {
         if (e.target.closest('#flashcard')) flipCard();
       });
     }
 
     // Rating buttons handled via card-actions delegation below
+
 
     // Star & Note buttons — use event delegation to always get current word
     document.getElementById('btn-star')?.addEventListener('click', () => {
