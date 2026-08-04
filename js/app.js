@@ -196,7 +196,7 @@ const App = (() => {
       </div>`).join('');
 
     wrap.innerHTML = `
-      <div class="flashcard" id="flashcard" onclick="App.flipCard()">
+      <div class="flashcard" id="flashcard">
         <div class="flashcard-face flashcard-front">
           <span class="badge badge-${w.level.toLowerCase()}">${w.level}</span>
           <div class="card-word" style="margin-top:12px">${w.word}</div>
@@ -228,8 +228,7 @@ const App = (() => {
     $('#btn-note').title        = hasNote  ? '查看筆記' : '加入筆記';
   }
 
-  window.App = window.App || {};
-  window.App.flipCard = () => {
+  function flipCard() {
     const card = $('#flashcard');
     if (!card) return;
     state.studyFlipped = !state.studyFlipped;
@@ -238,7 +237,10 @@ const App = (() => {
     if (state.studyFlipped) {
       $('#card-actions').style.display = 'flex';
     }
-  };
+  }
+  // Keep App.flipCard for backward compat
+  window.App = window.App || {};
+  window.App.flipCard = flipCard;
 
   function rateWord(quality) {
     const w = state.studyWords[state.studyIdx];
@@ -875,6 +877,13 @@ const App = (() => {
         E.saveSettings(s);
         state.studyLevels = s.selectedLevels;
         renderStudyPage();
+      }
+    });
+
+    // Flashcard click — use event delegation on the area (more reliable than onclick attribute)
+    document.getElementById('flashcard-area')?.addEventListener('click', e => {
+      if (e.target.closest('#flashcard')) {
+        flipCard();
       }
     });
 
