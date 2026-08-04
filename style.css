@@ -677,6 +677,10 @@ body {
   font-size: 12px; color: var(--amber); font-style: italic; line-height: 1.4;
 }
 .meaning-example-line::before { content: '💬 '; font-style: normal; }
+.meaning-example-zh {
+  font-size: 11px; color: var(--cyan-light); line-height: 1.4;
+  margin-top: 2px; padding-left: 18px;
+}
 .card-en-def-main {
   font-size: 12px; color: var(--text2); text-align: center;
   background: rgba(124,58,237,0.1); border-radius: 8px;

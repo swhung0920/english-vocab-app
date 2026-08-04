@@ -192,7 +192,10 @@ const App = (() => {
           <span class="meaning-context">${m.context || '📖 一般用法'}</span>
         </div>
         <div class="meaning-en-def">${m.en_def}</div>
-        ${m.example ? `<div class="meaning-example-line">${m.example}</div>` : ''}
+        ${m.example ? `
+          <div class="meaning-example-line">${m.example}</div>
+          ${m.example_zh ? `<div class="meaning-example-zh">${m.example_zh}</div>` : ''}
+        ` : ''}
       </div>`).join('');
 
     // Load saved sentences for this word (now stored as {en, zh} objects)
