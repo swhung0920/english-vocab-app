@@ -195,6 +195,15 @@ const App = (() => {
         ${m.example ? `<div class="meaning-example-line">${m.example}</div>` : ''}
       </div>`).join('');
 
+    // Load saved sentences for this word
+    const sentenceKey = `va_sentences_${w.id}`;
+    const savedSentences = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
+    const savedHtml = savedSentences.map((s, i) => `
+      <div class="card-sentence-item">
+        <span class="card-sentence-item-text">${s}</span>
+        <button class="card-sentence-delete" data-idx="${i}" title="刪除">✕</button>
+      </div>`).join('');
+
     wrap.innerHTML = `
       <div class="flashcard" id="flashcard">
         <div class="flashcard-face flashcard-front">
@@ -202,20 +211,88 @@ const App = (() => {
           <div class="card-word" style="margin-top:12px">${w.word}</div>
           <div class="card-phonetic">${w.phonetic}</div>
           <div class="card-pos-badge"><span class="badge badge-a2">${w.pos}</span></div>
-          <div class="card-tap-hint">👆 點擊翻卡看答案</div>
+          <div style="margin-top:20px;font-size:13px;color:var(--text2);text-align:center;line-height:1.6">
+            ${w.zh}
+          </div>
+          <div class="card-tap-hint" style="margin-top:20px">👆 點擊翻卡看詳細解釋</div>
         </div>
-        <div class="flashcard-face flashcard-back" style="justify-content:flex-start;padding:16px 14px;overflow:hidden">
-          <div class="card-back-scroll">
+        <div class="flashcard-face flashcard-back" style="justify-content:flex-start;padding:14px 14px 14px;overflow:hidden">
+          <div class="card-back-scroll" id="card-back-scroll-${w.id}">
             <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
               <span class="badge badge-${w.level.toLowerCase()}">${w.level}</span>
-              <span style="font-size:20px;font-weight:800;color:var(--cyan-light)">${w.word}</span>
+              <span style="font-size:18px;font-weight:800;color:var(--cyan-light)">${w.word}</span>
               <span style="font-size:12px;color:var(--text2)">${w.phonetic}</span>
             </div>
             <div class="card-primary-zh">${w.zh}</div>
             <div class="meanings-list">${meaningsHtml}</div>
+
+            <!-- 造句區 -->
+            <div class="card-sentence-section">
+              <div class="card-sentence-label">✍️ 造句練習（點此輸入你的例句）</div>
+              ${savedHtml ? `<div class="card-sentence-saved" id="sentences-list-${w.id}">${savedHtml}</div>` : `<div class="card-sentence-saved" id="sentences-list-${w.id}"></div>`}
+              <div class="card-sentence-input-row">
+                <textarea class="card-sentence-input" id="sentence-input-${w.id}"
+                  placeholder="用 ${w.word} 造一個句子..." rows="2"></textarea>
+                <button class="card-sentence-submit" id="sentence-submit-${w.id}">儲存</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>`;
+
+    // Sentence save/delete handlers (set after innerHTML)
+    setTimeout(() => {
+      const input  = document.getElementById(`sentence-input-${w.id}`);
+      const submit = document.getElementById(`sentence-submit-${w.id}`);
+      const list   = document.getElementById(`sentences-list-${w.id}`);
+
+      submit?.addEventListener('click', e => {
+        e.stopPropagation();
+        const text = input?.value.trim();
+        if (!text) return;
+        const sents = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
+        sents.unshift(text);
+        localStorage.setItem(sentenceKey, JSON.stringify(sents));
+        input.value = '';
+        // Re-render saved list
+        if (list) {
+          list.innerHTML = sents.map((s, i) => `
+            <div class="card-sentence-item">
+              <span class="card-sentence-item-text">${s}</span>
+              <button class="card-sentence-delete" data-idx="${i}" title="刪除">✕</button>
+            </div>`).join('');
+          list.querySelectorAll('.card-sentence-delete').forEach(btn => {
+            btn.addEventListener('click', ev => {
+              ev.stopPropagation();
+              const idx = +btn.dataset.idx;
+              const arr = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
+              arr.splice(idx, 1);
+              localStorage.setItem(sentenceKey, JSON.stringify(arr));
+              btn.closest('.card-sentence-item').remove();
+            });
+          });
+        }
+        toast('造句已儲存！', '✍️');
+      });
+
+      // Delete existing sentences
+      list?.querySelectorAll('.card-sentence-delete').forEach(btn => {
+        btn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const idx = +btn.dataset.idx;
+          const arr = JSON.parse(localStorage.getItem(sentenceKey) || '[]');
+          arr.splice(idx, 1);
+          localStorage.setItem(sentenceKey, JSON.stringify(arr));
+          btn.closest('.card-sentence-item').remove();
+        });
+      });
+
+      // Prevent textarea click from triggering card flip
+      input?.addEventListener('click', e => e.stopPropagation());
+      input?.addEventListener('touchend', e => e.stopPropagation());
+    }, 50);
+
+
 
 
     // Progress bar
