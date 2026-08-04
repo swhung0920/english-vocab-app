@@ -176,7 +176,8 @@ const App = (() => {
     const done    = state.studyIdx;
     const pct     = total > 0 ? (done / total) * 100 : 0;
 
-    $('#card-actions').style.display = 'flex';
+    // Hide rating buttons until card is flipped
+    $('#card-actions').style.display = 'none';
     $('#word-tools').style.display   = 'flex';
 
     // Build meanings HTML for back face
@@ -233,6 +234,10 @@ const App = (() => {
     if (!card) return;
     state.studyFlipped = !state.studyFlipped;
     card.classList.toggle('flipped', state.studyFlipped);
+    // Show rating buttons only after card is flipped
+    if (state.studyFlipped) {
+      $('#card-actions').style.display = 'flex';
+    }
   };
 
   function rateWord(quality) {
