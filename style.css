@@ -258,6 +258,8 @@ body {
   width: 100%; min-height: 220px; position: relative;
   transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
   cursor: pointer; border-radius: var(--radius);
+  touch-action: manipulation;   /* iOS: 消除 300ms 延遲 */
+  -webkit-tap-highlight-color: transparent;
 }
 .flashcard.flipped { transform: rotateY(180deg); }
 .flashcard-face {

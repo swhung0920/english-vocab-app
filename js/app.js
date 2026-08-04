@@ -880,12 +880,31 @@ const App = (() => {
       }
     });
 
-    // Flashcard click — use event delegation on the area (more reliable than onclick attribute)
-    document.getElementById('flashcard-area')?.addEventListener('click', e => {
-      if (e.target.closest('#flashcard')) {
-        flipCard();
-      }
-    });
+    // Flashcard click / touch — handle both desktop click & iOS touch
+    const fcArea = document.getElementById('flashcard-area');
+    if (fcArea) {
+      let _touchMoved = false;
+
+      fcArea.addEventListener('touchstart', () => {
+        _touchMoved = false;
+      }, { passive: true });
+
+      fcArea.addEventListener('touchmove', () => {
+        _touchMoved = true;
+      }, { passive: true });
+
+      fcArea.addEventListener('touchend', e => {
+        if (!_touchMoved && e.target.closest('#flashcard')) {
+          e.preventDefault();   // prevent ghost click
+          flipCard();
+        }
+      });
+
+      // Desktop fallback
+      fcArea.addEventListener('click', e => {
+        if (e.target.closest('#flashcard')) flipCard();
+      });
+    }
 
     // Rating buttons handled via card-actions delegation below
 
