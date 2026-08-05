@@ -316,6 +316,20 @@ body {
 .card-def { font-size: 14px; color: var(--text2); text-align: center; margin-top: 8px; line-height: 1.5; }
 .card-example { font-size: 13px; color: var(--cyan); font-style: italic; text-align: center; margin-top: 12px; padding: 10px; background: rgba(6,182,212,0.1); border-radius: 8px; line-height: 1.5; }
 
+/* ── 字頻標籤 ── */
+.freq-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: 100px;
+  margin-top: 10px; letter-spacing: 0.3px;
+}
+.freq-rank { font-weight: 400; opacity: 0.75; font-size: 11px; }
+.freq-fire { background: rgba(239,68,68,0.18);   color: #f87171;  border: 1px solid rgba(239,68,68,0.3); }
+.freq-high { background: rgba(245,158,11,0.18);  color: #fbbf24;  border: 1px solid rgba(245,158,11,0.3); }
+.freq-mid  { background: rgba(16,185,129,0.18);  color: #34d399;  border: 1px solid rgba(16,185,129,0.3); }
+.freq-low  { background: rgba(6,182,212,0.18);   color: #67e8f9;  border: 1px solid rgba(6,182,212,0.3); }
+.freq-adv  { background: rgba(124,58,237,0.18);  color: #c084fc;  border: 1px solid rgba(124,58,237,0.3); }
+
 .card-actions { display: flex; gap: 10px; padding: 16px 20px; }
 .action-btn {
   flex: 1; padding: 14px; border-radius: var(--radius-sm);

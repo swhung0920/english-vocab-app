@@ -185,6 +185,20 @@ const App = (() => {
       pos: w.pos, en_def: w.en_def, example: w.example, context: '📖 一般用法'
     }];
 
+    // Frequency label helper
+    const freqTier = (rank) => {
+      if (!rank) return null;
+      if (rank <= 100)  return { icon: '🔥', label: 'Top 100',  cls: 'freq-fire' };
+      if (rank <= 500)  return { icon: '⚡', label: 'Top 500',  cls: 'freq-high' };
+      if (rank <= 1000) return { icon: '📈', label: 'Top 1000', cls: 'freq-mid'  };
+      if (rank <= 2000) return { icon: '📚', label: 'Top 2000', cls: 'freq-low'  };
+      return               { icon: '🎓', label: '進階字彙',  cls: 'freq-adv'  };
+    };
+    const ft = freqTier(w.frequency_rank);
+    const freqHtml = ft
+      ? `<div class="freq-badge ${ft.cls}">${ft.icon} ${ft.label} <span class="freq-rank">#${w.frequency_rank}</span></div>`
+      : '';
+
     const meaningsHtml = meanings.map((m, i) => `
       <div class="meaning-item">
         <div class="meaning-header">
@@ -221,9 +235,10 @@ const App = (() => {
           <div class="card-word" style="margin-top:14px">${w.word}</div>
           <div class="card-phonetic">${w.phonetic}</div>
           <div class="card-pos-badge"><span class="badge badge-a2">${w.pos}</span></div>
-          <div style="width:48px;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;margin:14px 0 10px"></div>
+          ${freqHtml}
+          <div style="width:48px;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;margin:10px 0 8px"></div>
           <div class="card-front-zh">${w.zh}</div>
-          <div class="card-tap-hint" style="margin-top:18px">👆 點擊翻卡看詳細解釋與例句</div>
+          <div class="card-tap-hint" style="margin-top:14px">👆 點擊翻卡看詳細解釋與例句</div>
         </div>
         <div class="flashcard-face flashcard-back" style="justify-content:flex-start;padding:14px 14px 14px;overflow:hidden">
           <div class="card-back-scroll" id="card-back-scroll-${w.id}">
