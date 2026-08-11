@@ -695,6 +695,32 @@ body {
   font-size: 11px; color: var(--cyan-light); line-height: 1.4;
   margin-top: 2px; padding-left: 18px;
 }
+
+/* ── 搭配詞/片語 ── */
+.card-collocations {
+  width: 100%; border-top: 1px solid var(--glass-border);
+  padding-top: 10px; margin-top: 2px;
+}
+.card-colloc-label {
+  font-size: 11px; font-weight: 700; color: var(--amber);
+  letter-spacing: 0.5px; margin-bottom: 7px;
+}
+.card-colloc-chips {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.colloc-chip {
+  font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 100px;
+  cursor: default; letter-spacing: 0.2px;
+}
+.colloc-follows  {
+  background: rgba(16,185,129,0.15); color: #34d399;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+.colloc-precedes {
+  background: rgba(124,58,237,0.15); color: #c084fc;
+  border: 1px solid rgba(124,58,237,0.3);
+}
 .card-en-def-main {
   font-size: 12px; color: var(--text2); text-align: center;
   background: rgba(124,58,237,0.1); border-radius: 8px;

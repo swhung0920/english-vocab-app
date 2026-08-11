@@ -250,6 +250,17 @@ const App = (() => {
             <div class="card-primary-zh">${w.zh}</div>
             <div class="meanings-list">${meaningsHtml}</div>
 
+            <!-- 搭配詞/片語 -->
+            ${(w.collocations && w.collocations.length) ? `
+            <div class="card-collocations">
+              <div class="card-colloc-label">🔗 常用搭配</div>
+              <div class="card-colloc-chips">
+                ${w.collocations.map(c =>
+                  `<span class="colloc-chip colloc-${c.type}">${c.phrase}</span>`
+                ).join('')}
+              </div>
+            </div>` : ''}
+
             <!-- 造句區 -->
             <div class="card-sentence-section">
               <div class="card-sentence-label">✍️ 造句練習</div>
