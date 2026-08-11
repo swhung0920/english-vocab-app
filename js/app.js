@@ -206,6 +206,7 @@ const App = (() => {
           <span class="meaning-context">${m.context || '📖 一般用法'}</span>
         </div>
         <div class="meaning-en-def">${m.en_def}</div>
+        ${m.en_def_zh ? `<div class="meaning-en-def-zh">${m.en_def_zh}</div>` : ''}
         ${m.example ? `
           <div class="meaning-example-line">${m.example}</div>
           ${m.example_zh ? `<div class="meaning-example-zh">${m.example_zh}</div>` : ''}
