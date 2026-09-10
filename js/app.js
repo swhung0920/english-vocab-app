@@ -262,6 +262,37 @@ const App = (() => {
               </div>
             </div>` : ''}
 
+            <!-- 近義詞 / 反義詞 -->
+            ${((w.synonyms && w.synonyms.length) || (w.antonyms && w.antonyms.length)) ? `
+            <div class="card-syn-ant">
+              ${w.synonyms && w.synonyms.length ? `
+              <div class="card-syn-row">
+                <span class="card-syn-label">≈ 近義</span>
+                <div class="card-word-chips">
+                  ${w.synonyms.map(s => `<span class="word-chip chip-syn">${s}</span>`).join('')}
+                </div>
+              </div>` : ''}
+              ${w.antonyms && w.antonyms.length ? `
+              <div class="card-syn-row">
+                <span class="card-syn-label">≠ 反義</span>
+                <div class="card-word-chips">
+                  ${w.antonyms.map(a => `<span class="word-chip chip-ant">${a}</span>`).join('')}
+                </div>
+              </div>` : ''}
+            </div>` : ''}
+
+            <!-- 詞形變化 -->
+            ${(w.word_forms && Object.keys(w.word_forms).length) ? `
+            <div class="card-wordforms">
+              <div class="card-colloc-label">🔀 詞形變化</div>
+              <div class="card-wordforms-grid">
+                ${Object.entries(w.word_forms).map(([k, v]) => {
+                  const labels = { past: '過去式', past_p: '過去分詞', gerund: '現在分詞', s3: '第三人稱', plural: '複數', comparative: '比較級', superlative: '最高級', adverb: '副詞' };
+                  return `<div class="wordform-item"><span class="wordform-label">${labels[k] || k}</span><span class="wordform-val">${v}</span></div>`;
+                }).join('')}
+              </div>
+            </div>` : ''}
+
             <!-- 造句區 -->
             <div class="card-sentence-section">
               <div class="card-sentence-label">✍️ 造句練習</div>
